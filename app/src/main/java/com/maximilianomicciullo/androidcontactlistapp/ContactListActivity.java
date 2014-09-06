@@ -66,7 +66,7 @@ public class ContactListActivity extends Activity {
                 itemView = getLayoutInflater().inflate(R.layout.item_view,parent,false);
             }
 
-            // Find the car to work with
+            // Find the contact to work with
             Contact currentContact = myContacts.get(position);
 
             // Fill the view
@@ -94,7 +94,13 @@ public class ContactListActivity extends Activity {
                 String message = "You clicked position " + position
                         + " Which is contact name " + clickedContact.getName();
                 Toast.makeText(ContactListActivity.this, message, Toast.LENGTH_LONG).show();
-                startActivity(new Intent(ContactListActivity.this, DetailActivity.class));
+
+                Intent intent = new Intent(ContactListActivity.this, DetailActivity.class);
+
+                // Sending clickedContact to the DetailActivity to show the info.
+                intent.putExtra("contactClicked", clickedContact);
+                startActivity(intent);
+//                startActivity(new Intent(ContactListActivity.this, DetailActivity.class));
             }
         });
     }

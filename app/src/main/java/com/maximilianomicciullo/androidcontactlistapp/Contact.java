@@ -1,9 +1,11 @@
 package com.maximilianomicciullo.androidcontactlistapp;
 
+import java.io.Serializable;
+
 /**
  * Created by maximilianomicciullo on 06/09/14.
  */
-public class Contact {
+public class Contact implements Serializable {
 
     private String name;
     private String phone;
