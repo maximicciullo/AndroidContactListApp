@@ -29,8 +29,6 @@ public class ContactListActivity extends Activity {
         registerClickCallBack();
     }
 
-
-
     private void populateContactList() {
         myContacts.add(new Contact("Max", "1533901999", R.drawable.person));
         myContacts.add(new Contact("Macarena", "1588114212", R.drawable.person));
