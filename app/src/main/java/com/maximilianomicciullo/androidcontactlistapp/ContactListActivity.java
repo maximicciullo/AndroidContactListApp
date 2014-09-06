@@ -1,6 +1,7 @@
 package com.maximilianomicciullo.androidcontactlistapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,6 +94,7 @@ public class ContactListActivity extends Activity {
                 String message = "You clicked position " + position
                         + " Which is contact name " + clickedContact.getName();
                 Toast.makeText(ContactListActivity.this, message, Toast.LENGTH_LONG).show();
+                startActivity(new Intent(ContactListActivity.this, DetailActivity.class));
             }
         });
     }
