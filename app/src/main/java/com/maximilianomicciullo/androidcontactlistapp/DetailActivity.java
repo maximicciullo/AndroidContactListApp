@@ -19,7 +19,7 @@ public class DetailActivity extends Activity {
         // getting the info of the clicked contact.
         Contact contactClicked = (Contact) getIntent().getSerializableExtra("contactClicked");
         String name = contactClicked.getName();
-        String phone = contactClicked.getPhone();
+        String phone = contactClicked.getPhoneTest();
 
         // just for test
         Toast.makeText(this, "Contact Clicked: " + name + " " + phone , Toast.LENGTH_LONG).show();
