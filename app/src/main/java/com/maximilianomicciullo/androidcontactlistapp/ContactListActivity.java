@@ -69,6 +69,9 @@ public class ContactListActivity extends Activity {
 
                                     //Get the details
                                     JSONObject detailsResult = completeContactDetails(contact);
+                                    ContactDetails details1;
+                                    details1 = factory.objectToDetails(detailsResult);
+                                    contact.setDetails(details1);
                                     result.add(contact);
                                 }
                                 populateListView(result);
@@ -94,9 +97,7 @@ public class ContactListActivity extends Activity {
                         public void onResponse(JSONObject response) {
                             try {
                                 detailJsonObject[0] = response;
-                                ContactDetails details;
-                                details = factory.objectToDetails(response);
-                                contact.setDetails(details);
+                               
                             } catch (Exception e) {
                                 System.out.println(e);
                             }
