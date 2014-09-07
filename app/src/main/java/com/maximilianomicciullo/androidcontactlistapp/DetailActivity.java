@@ -18,6 +18,11 @@ public class DetailActivity extends Activity {
 
         // getting the info of the clicked contact.
         Contact contactClicked = (Contact) getIntent().getSerializableExtra("contactClicked");
+        System.out.println("OBJETO CONTACT CLICKED: "+contactClicked);
+
+        String urlDetails = contactClicked.getDetailsURL();
+        System.out.println();
+
         String name = contactClicked.getName();
         String phone = contactClicked.getPhoneTest();
 

@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 import com.maximilianomicciullo.androidcontactlistapp.Enums.EPhones;
 import com.maximilianomicciullo.androidcontactlistapp.Factory.ContactFactory;
@@ -31,6 +32,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class ContactListActivity extends Activity {
@@ -54,7 +56,8 @@ public class ContactListActivity extends Activity {
     }
 
     private JsonRequest getJsonRequest() {
-        return new JsonArrayRequest(urlEndpointContact,
+        final RequestQueue rq = Volley.newRequestQueue(this);
+        JsonRequest jsonRequest =  new JsonArrayRequest(urlEndpointContact,
                     new Response.Listener<JSONArray>() {
                         @Override
                         public void onResponse(JSONArray response) {
@@ -68,10 +71,12 @@ public class ContactListActivity extends Activity {
                                     contact = factory.objectToContact(response.getJSONObject(i));
 
                                     //Get the details
-                                    JSONObject detailsResult = completeContactDetails(contact);
-                                    ContactDetails details1;
-                                    details1 = factory.objectToDetails(detailsResult);
-                                    contact.setDetails(details1);
+                                    RequestFuture<JSONObject> future = RequestFuture.newFuture();
+                                    JsonObjectRequest request = new JsonObjectRequest(contact.getDetailsURL(), new JSONObject(), future, future);
+                                    rq.add(request);
+//                                    JSONObject detailsResult = completeContactDetails(contact);
+                                    JSONObject detailsResult =  future.get(30, TimeUnit.SECONDS);
+
                                     result.add(contact);
                                 }
                                 populateListView(result);
@@ -86,31 +91,35 @@ public class ContactListActivity extends Activity {
                         }
                     }
                 );
+        rq.add(jsonRequest);
+        return jsonRequest;
     }
 
-    private JSONObject completeContactDetails(final Contact contact) {
-        RequestQueue rq = Volley.newRequestQueue(this);
-        final JSONObject[] detailJsonObject = new JSONObject[1];
-        JsonRequest jsonRequestDetails = new JsonObjectRequest(Request.Method.GET, contact.getDetailsURL(),
-                null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                detailJsonObject[0] = response;
-                               
-                            } catch (Exception e) {
-                                System.out.println(e);
-                            }
-                        }
-                        }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-
-                        }
-                    });
-        rq.add(jsonRequestDetails);
-        return detailJsonObject[0];
-    }
+//    private JSONObject completeContactDetails(final Contact contact) {
+//        RequestQueue rq = Volley.newRequestQueue(this);
+//        final JSONObject[] detailJsonObject = new JSONObject[1];
+//        JsonRequest jsonRequestDetails = new JsonObjectRequest(Request.Method.GET, contact.getDetailsURL(),
+//                null, new Response.Listener<JSONObject>() {
+//                        @Override
+//                        public void onResponse(JSONObject response) {
+//                            try {
+//                                detailJsonObject[0] = response;
+//                                ContactDetails details;
+//                                details = factory.objectToDetails(response);
+//                                contact.setDetails(details);
+//                            } catch (Exception e) {
+//                                System.out.println(e);
+//                            }
+//                        }
+//                        }, new Response.ErrorListener() {
+//                        @Override
+//                        public void onErrorResponse(VolleyError volleyError) {
+//
+//                        }
+//                    });
+//        rq.add(jsonRequestDetails);
+//        return detailJsonObject[0];
+//    }
 
     private void populateListView(List<Contact> result) {
         ArrayAdapter<Contact> adapter = new MyListAdapter();
@@ -172,6 +181,7 @@ public class ContactListActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewClicked, int position, long id) {
                 Contact clickedContact = result.get(position);
+
                 String message = "You clicked position " + position
                         + " Which is contact name " + clickedContact.getName();
                 Toast.makeText(ContactListActivity.this, message, Toast.LENGTH_LONG).show();
