@@ -12,7 +12,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:src="@drawable/person"
-        android:maxHeight="50dp"
+        android:maxHeight="100dp"
         android:maxWidth="50dp"
         android:adjustViewBounds="true" />
 
