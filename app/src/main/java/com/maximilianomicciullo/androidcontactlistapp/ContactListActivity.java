@@ -47,49 +47,71 @@ public class ContactListActivity extends Activity {
 
         RequestQueue rq = Volley.newRequestQueue(this);
 
-        JsonRequest jsonRequest = new JsonArrayRequest(urlEndpointContact,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        try {
-                            //Iterating all the contacts
-                            for (int i = 0; i < response.length(); i++) {
-                                Contact contact;
-                                ContactDetails details;
-
-                                //Create the contact
-                                contact = factory.objectToContact(response.getJSONObject(i));
-
-
-                                //Get the details
-//                                details = completeContactDetails(contact.getDetailsURL());
-//                                String detailsResult = contact.getDetailsURL();
-//
-//                                details = factory.objectToDetails(new JSONObject(detailsResult));
-
-//                                contact.setDetails(details);
-
-                                result.add(contact);
-                            }
-                            populateListView(result);
-                        } catch (Exception e) {
-                            System.out.println(e);
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(ContactListActivity.this, "It was an error getting the contacts remotely !!!" + error.toString(), Toast.LENGTH_LONG).show();
-                    }
-                }
-            );
+        JsonRequest jsonRequest = getJsonRequest();
         rq.add(jsonRequest);
 
         registerClickCallBack();
     }
 
+    private JsonRequest getJsonRequest() {
+        return new JsonArrayRequest(urlEndpointContact,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            try {
+                                //Iterating all the contacts
+                                for (int i = 0; i < response.length(); i++) {
+                                    Contact contact;
+                                    ContactDetails details;
+
+                                    //Create the contact
+                                    contact = factory.objectToContact(response.getJSONObject(i));
+
+                                    //Get the details
+                                    JSONObject detailsResult = completeContactDetails(contact);
+                                    result.add(contact);
+                                }
+                                populateListView(result);
+                            } catch (Exception e) {
+                                System.out.println(e);
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(ContactListActivity.this, "It was an error getting the contacts remotely !!!" + error.toString(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                );
+    }
+
+    private JSONObject completeContactDetails(final Contact contact) {
+        RequestQueue rq = Volley.newRequestQueue(this);
+        final JSONObject[] detailJsonObject = new JSONObject[1];
+        JsonRequest jsonRequestDetails = new JsonObjectRequest(Request.Method.GET, contact.getDetailsURL(),
+                null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                detailJsonObject[0] = response;
+                                ContactDetails details;
+                                details = factory.objectToDetails(response);
+                                contact.setDetails(details);
+                            } catch (Exception e) {
+                                System.out.println(e);
+                            }
+                        }
+                        }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+
+                        }
+                    });
+        rq.add(jsonRequestDetails);
+        return detailJsonObject[0];
+    }
+
     private void populateListView(List<Contact> result) {
-        System.out.println("LISTA DE RESULT EN POPULATE LIST VIEW: " + result);
         ArrayAdapter<Contact> adapter = new MyListAdapter();
         ListView list = (ListView) findViewById(R.id.contactsListView);
         list.setAdapter(adapter);
@@ -98,7 +120,6 @@ public class ContactListActivity extends Activity {
     private class  MyListAdapter extends ArrayAdapter<Contact> {
         public MyListAdapter() {
             super(ContactListActivity.this, R.layout.item_view, result);
-            System.out.println("LISTA DE RESULT: " + result);
         }
 
         @Override
@@ -131,13 +152,13 @@ public class ContactListActivity extends Activity {
             TextView phoneText = (TextView) itemView.findViewById(R.id.item_txtPhone);
 
             if( StringUtils.checkString(currentContact.getPhone().getHome()) && StringUtils.checkString(currentContact.getPhone().getMobile()) && StringUtils.checkString(currentContact.getPhone().getWork()) ){
-                phoneText.setText("-- No Available Phone --");
+                phoneText.setText("-- Phone Not Available --");
             }else if( !StringUtils.checkString(currentContact.getPhone().getHome()) ){
-                phoneText.setText(currentContact.getPhone().getHome() + "("+ EPhones.Home.toString()+")");
+                phoneText.setText(EPhones.Home.toString()+": " + currentContact.getPhone().getHome());
             }else if( !StringUtils.checkString(currentContact.getPhone().getMobile()) ){
-                phoneText.setText(currentContact.getPhone().getMobile() + "("+ EPhones.Mobile.toString()+")");
+                phoneText.setText(EPhones.Mobile.toString()+": " + currentContact.getPhone().getMobile());
             }else if( StringUtils.checkString(currentContact.getPhone().getWork()) ){
-                phoneText.setText(currentContact.getPhone().getWork() + "("+EPhones.Work.toString()+")");
+                phoneText.setText(EPhones.Work.toString()+": " + currentContact.getPhone().getWork());
             }
 
             return itemView;
