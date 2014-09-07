@@ -119,8 +119,8 @@ public class ContactListActivity extends Activity {
             imgLoader.displayImage(currentContact.getSmallImageURL(), img);
 
             //Set Image minimum size
-            img.setMinimumWidth(100);
-            img.setMinimumHeight(100);
+            img.setMinimumWidth(200);
+            img.setMinimumHeight(200);
 
 
             // Contact Name
