@@ -22,11 +22,10 @@
         android:id="@+id/contactImg"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentStart="false"
         android:maxHeight="90dp"
         android:maxWidth="90dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/person"
         android:longClickable="false" />
 
     <TextView
