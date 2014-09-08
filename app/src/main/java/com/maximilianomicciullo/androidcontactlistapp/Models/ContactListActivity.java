@@ -1,4 +1,4 @@
-package com.maximilianomicciullo.androidcontactlistapp;
+package com.maximilianomicciullo.androidcontactlistapp.Models;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -12,22 +12,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
+import com.maximilianomicciullo.androidcontactlistapp.CommonUtils.CommonUtilString;
 import com.maximilianomicciullo.androidcontactlistapp.Enums.EPhones;
-import com.maximilianomicciullo.androidcontactlistapp.Factory.ContactFactory;
-import com.maximilianomicciullo.androidcontactlistapp.Utils.StringUtils;
+import com.maximilianomicciullo.androidcontactlistapp.ParserComponent.ParserContactData;
+import com.maximilianomicciullo.androidcontactlistapp.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +33,8 @@ import java.util.List;
 
 public class ContactListActivity extends Activity {
 
-    private List<Contact> result = new ArrayList<Contact>();
-    private ContactFactory factory = new ContactFactory();
+    private List<Contact> resultContacts = new ArrayList<Contact>();
+    private ParserContactData factory = new ParserContactData();
 
     private final String urlEndpointContact = "https://solstice.applauncher.com/external/contacts.json";
 
@@ -53,6 +51,11 @@ public class ContactListActivity extends Activity {
         registerClickCallBack();
     }
 
+    /**
+     * Method who aim to obtain the necessary data hitting the endpoint.
+     *
+     * @return
+     */
     private JsonRequest getJsonRequest() {
         return new JsonArrayRequest(urlEndpointContact,
                     new Response.Listener<JSONArray>() {
@@ -63,9 +66,9 @@ public class ContactListActivity extends Activity {
                                 for (int i = 0; i < response.length(); i++) {
                                     //Create the contact
                                     Contact contact = factory.objectToContact(response.getJSONObject(i));
-                                    result.add(contact);
+                                    resultContacts.add(contact);
                                 }
-                                populateListView(result);
+                                populateListView(resultContacts);
                             } catch (Exception e) {
                                 System.out.println(e);
                             }
@@ -79,15 +82,23 @@ public class ContactListActivity extends Activity {
                 );
     }
 
+    /**
+     * Method to populate and render the contact data in the view.
+     *
+     * @param result
+     */
     private void populateListView(List<Contact> result) {
         ArrayAdapter<Contact> adapter = new MyListAdapter();
         ListView list = (ListView) findViewById(R.id.contactsListView);
         list.setAdapter(adapter);
     }
 
+    /**
+     * MyListAdapter - It's the necessary adapter to show de contact list.
+     */
     private class  MyListAdapter extends ArrayAdapter<Contact> {
         public MyListAdapter() {
-            super(ContactListActivity.this, R.layout.item_view, result);
+            super(ContactListActivity.this, R.layout.item_view, resultContacts);
         }
 
         @Override
@@ -99,7 +110,7 @@ public class ContactListActivity extends Activity {
             }
 
             // Find the contact to work with
-            Contact currentContact = result.get(position);
+            Contact currentContact = resultContacts.get(position);
 
             // Fill the view
             ImageView img = (ImageView) itemView.findViewById(R.id.item_icon);
@@ -119,13 +130,13 @@ public class ContactListActivity extends Activity {
             // Phone
             TextView phoneText = (TextView) itemView.findViewById(R.id.item_txtPhone);
 
-            if( StringUtils.checkString(currentContact.getPhone().getHome()) && StringUtils.checkString(currentContact.getPhone().getMobile()) && StringUtils.checkString(currentContact.getPhone().getWork()) ){
+            if( CommonUtilString.checkString(currentContact.getPhone().getHome()) && CommonUtilString.checkString(currentContact.getPhone().getMobile()) && CommonUtilString.checkString(currentContact.getPhone().getWork()) ){
                 phoneText.setText("-- Phone Not Available --");
-            }else if( !StringUtils.checkString(currentContact.getPhone().getHome()) ){
+            }else if( !CommonUtilString.checkString(currentContact.getPhone().getHome()) ){
                 phoneText.setText(EPhones.Home.toString()+": " + currentContact.getPhone().getHome());
-            }else if( !StringUtils.checkString(currentContact.getPhone().getMobile()) ){
+            }else if( !CommonUtilString.checkString(currentContact.getPhone().getMobile()) ){
                 phoneText.setText(EPhones.Mobile.toString()+": " + currentContact.getPhone().getMobile());
-            }else if( StringUtils.checkString(currentContact.getPhone().getWork()) ){
+            }else if( CommonUtilString.checkString(currentContact.getPhone().getWork()) ){
                 phoneText.setText(EPhones.Work.toString()+": " + currentContact.getPhone().getWork());
             }
 
@@ -133,12 +144,15 @@ public class ContactListActivity extends Activity {
         }
     }
 
+    /**
+     * Method to the behavior when an item is clicked.
+     */
     private void registerClickCallBack() {
         ListView list = (ListView) findViewById(R.id.contactsListView);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View viewClicked, int position, long id) {
-                Contact clickedContact = result.get(position);
+                Contact clickedContact = resultContacts.get(position);
                 Intent intent = new Intent(ContactListActivity.this, DetailActivity.class);
 
                 // Sending clickedContact to the DetailActivity to show the info.

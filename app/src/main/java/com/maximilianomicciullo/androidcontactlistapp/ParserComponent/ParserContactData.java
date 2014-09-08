@@ -1,16 +1,16 @@
-package com.maximilianomicciullo.androidcontactlistapp.Factory;
+package com.maximilianomicciullo.androidcontactlistapp.ParserComponent;
 
-import com.maximilianomicciullo.androidcontactlistapp.Contact;
-import com.maximilianomicciullo.androidcontactlistapp.ContactAddress;
-import com.maximilianomicciullo.androidcontactlistapp.ContactDetails;
-import com.maximilianomicciullo.androidcontactlistapp.Phone;
+import com.maximilianomicciullo.androidcontactlistapp.Models.Contact;
+import com.maximilianomicciullo.androidcontactlistapp.Models.ContactAddress;
+import com.maximilianomicciullo.androidcontactlistapp.Models.ContactDetails;
+import com.maximilianomicciullo.androidcontactlistapp.Models.Phone;
 
 import org.json.JSONObject;
 
 /**
  * Created by maximilianomicciullo on 07/09/14.
  */
-public class ContactFactory {
+public class ParserContactData {
         public Contact objectToContact(JSONObject obj) throws Exception{
             Contact contact = new Contact();
             Phone phone = new Phone();

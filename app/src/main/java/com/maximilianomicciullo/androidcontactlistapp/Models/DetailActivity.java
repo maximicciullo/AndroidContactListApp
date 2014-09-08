@@ -1,14 +1,12 @@
-package com.maximilianomicciullo.androidcontactlistapp;
+package com.maximilianomicciullo.androidcontactlistapp.Models;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -17,20 +15,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
-import com.maximilianomicciullo.androidcontactlistapp.Enums.EPhones;
-import com.maximilianomicciullo.androidcontactlistapp.Factory.ContactFactory;
-import com.maximilianomicciullo.androidcontactlistapp.Utils.StringUtils;
+import com.maximilianomicciullo.androidcontactlistapp.CommonUtils.CommonUtilString;
+import com.maximilianomicciullo.androidcontactlistapp.ParserComponent.ParserContactData;
+import com.maximilianomicciullo.androidcontactlistapp.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import org.json.JSONObject;
-
-import java.util.List;
 
 
 public class DetailActivity extends Activity {
 
-    private ContactFactory factory = new ContactFactory();
+    private ParserContactData factory = new ParserContactData();
     private Contact contactClicked;
 
     @Override
@@ -44,10 +39,12 @@ public class DetailActivity extends Activity {
         setNavigationButton();
     }
 
-
+    /**
+     * Method to get the contacts details
+     * @param contact
+     */
     private void getJsonRequest(Contact contact) {
         RequestQueue rq = Volley.newRequestQueue(this);
-        final JSONObject[] detailJsonObject = new JSONObject[1];
         JsonRequest jsonRequestDetails = new JsonObjectRequest(Request.Method.GET, contact.getDetailsURL(),
                 null, new Response.Listener<JSONObject>() {
                         @Override
@@ -61,14 +58,19 @@ public class DetailActivity extends Activity {
                         }
                         }, new Response.ErrorListener() {
                         @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(DetailActivity.this, "It was an error getting the contacts details remotely !!!" + error.toString(), Toast.LENGTH_LONG).show();
                         }
                     });
         rq.add(jsonRequestDetails);
-
     }
 
+
+    /**
+     * Method to populate and render the contact details in the view.
+     *
+     * @param details
+     */
     public void populateContactDetailsView(ContactDetails details) {
         ((TextView) findViewById(R.id.txtTitleName)).setText("Name");
         ((TextView) findViewById(R.id.txtName)).setText(contactClicked.getName());
@@ -77,13 +79,13 @@ public class DetailActivity extends Activity {
         ((TextView) findViewById(R.id.txtCompany)).setText(contactClicked.getCompany());
 
         ((TextView) findViewById(R.id.txtTitlePhone)).setText("Phone");
-        if( StringUtils.checkString(contactClicked.getPhone().getHome()) && StringUtils.checkString(contactClicked.getPhone().getMobile()) && StringUtils.checkString(contactClicked.getPhone().getWork()) ){
+        if( CommonUtilString.checkString(contactClicked.getPhone().getHome()) && CommonUtilString.checkString(contactClicked.getPhone().getMobile()) && CommonUtilString.checkString(contactClicked.getPhone().getWork()) ){
             ((TextView) findViewById(R.id.txtPhone)).setText("No Available Phone");
-        }else if( !StringUtils.checkString(contactClicked.getPhone().getHome()) ){
+        }else if( !CommonUtilString.checkString(contactClicked.getPhone().getHome()) ){
             ((TextView) findViewById(R.id.txtPhone)).setText(contactClicked.getPhone().getHome());
-        }else if( !StringUtils.checkString(contactClicked.getPhone().getMobile()) ){
+        }else if( !CommonUtilString.checkString(contactClicked.getPhone().getMobile()) ){
             ((TextView) findViewById(R.id.txtPhone)).setText(contactClicked.getPhone().getMobile());
-        }else if( StringUtils.checkString(contactClicked.getPhone().getWork()) ){
+        }else if( CommonUtilString.checkString(contactClicked.getPhone().getWork()) ){
             ((TextView) findViewById(R.id.txtPhone)).setText(contactClicked.getPhone().getWork());
         }
 
@@ -110,6 +112,10 @@ public class DetailActivity extends Activity {
             ((ImageView) findViewById(R.id.starImage)).setVisibility(View.INVISIBLE);
         }
     }
+
+    /**
+     * Method who's define the behavior of the back button.
+     */
     private void setNavigationButton() {
         Button button = (Button) findViewById(R.id.btnBack);
         button.setOnClickListener(new View.OnClickListener() {

@@ -1,4 +1,4 @@
-package com.maximilianomicciullo.androidcontactlistapp;
+package com.maximilianomicciullo.androidcontactlistapp.Models;
 
 import java.io.Serializable;
 
